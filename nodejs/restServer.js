@@ -1,7 +1,7 @@
 const http = require('http')
 const fs = require('fs').promises
 
-const users = {}
+const users = {};
 
 http.createServer(async (req, res)=> {
     try {
@@ -21,6 +21,12 @@ http.createServer(async (req, res)=> {
                 res.writeHead(200, {'Content-Type' : 'text/plain; charset=utf-8'});
                 return res.end(JSON.stringify(users))
             }
+            try {
+                const data = await fs.readFile(`.${req.url}`);
+                return res.end(data);
+              } catch (err) {
+               console.log('NOT FOUND')
+              }
         } // GET
         else if (req.method === 'POST'){
             if(req.url === '/user'){
@@ -32,8 +38,9 @@ http.createServer(async (req, res)=> {
                     const {name} = JSON.parse(body)
                     const id = Date.now();
                     users[id] = name;
-                    return res.end('등록성공')
-                })
+                    res.writeHead(201);
+                    res.end('등록성공');
+                });
             }
         } // POST
         else if (req.method === 'PUT'){
@@ -43,8 +50,9 @@ http.createServer(async (req, res)=> {
                 req.on('data' , (chunk)=>{
                     body += chunk
                 })
-                req.on('end', ()=>{
+                return req.on('end', ()=>{
                     users[key] = JSON.parse(body).name
+                    res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });
                     return res.end(JSON.stringify(users))
                 })
             }
@@ -52,18 +60,18 @@ http.createServer(async (req, res)=> {
         else if (req.method === 'DELETE'){
             if(req.url.startsWith('/user/')){
                 const key = req.url.split('/')[2]
-                req.on('end', ()=>{
-                    delete users[key]
-                    return res.end(JSON.stringify(users))
-                })
+                delete users[key]
+                return res.end(JSON.stringify(users))
             }
         } // DELETE
+        res.writeHead(404)
+        return res.end('NOT FOUND')
     } catch (error) {
         console.log(error);
         res.writeHead(500, {'Content-Type': 'text/html; charset=utf-8'});
         res.end(error.message);
     }
     
-}).listen(8081, ()=>{
-    console.log('8081번 포트에서 대기 중')
+}).listen(8084, ()=>{
+    console.log('8084번 포트에서 대기 중')
 })
