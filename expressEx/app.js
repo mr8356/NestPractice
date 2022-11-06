@@ -4,16 +4,34 @@ const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const dotenv = require('dotenv');
 const path = require('path');
-dotenv.config();
 const app = express();
-app.set('port', process.env.PORT || 3000);
+const nunjucks = require('nunjucks')
 
-const uploadRouter = require('./upload')
+dotenv.config();
 
+const { sequelize } = require('./models') // models/index.js
+
+
+app.set('port', process.env.PORT || 3000)
+app.set('view engine', 'html');
+nunjucks.configure('views', {
+  express : app,
+  watch : true,
+});
+const multer = require('multer');
+const fs = require('fs');
+
+
+sequelize.sync({force : false}).then(() => {console.log('db ok')}).catch((err) => {console.log(err)})
+
+const indexRouter = require('./routes/')
+const usersRouter = require('./routes/users')
+const commentsRouter = require('./routes/comments')
+const uploadRouter = require('./routes/upload')
 
 app.use(morgan('dev'));
-app.use('/', express.static(path.join(__dirname, 'public')));
 app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(session({
@@ -27,8 +45,7 @@ app.use(session({
   name: 'session-cookie',
 }));
 
-const multer = require('multer');
-const fs = require('fs');
+
 
 try {
   fs.readdirSync('uploads');
@@ -36,13 +53,13 @@ try {
   console.error('uploads 폴더가 없어 uploads 폴더를 생성합니다.');
   fs.mkdirSync('uploads');
 }
-app.use('/upload', uploadRouter)
-app.get('/', (req, res, next) => {
-  console.log('GET / 요청에서만 실행됩니다.');
-  next();
-}, (req, res) => {
-  throw new Error('에러는 에러 처리 미들웨어로 갑니다.')
-});
+
+// routers
+app.use('/', indexRouter);
+app.use('/users', usersRouter);
+app.use('/comments', commentsRouter);
+app.use('/upload', uploadRouter);
+
 app.use((err, req, res, next) => {
   console.error(err);
   res.status(500).send(err.message);
