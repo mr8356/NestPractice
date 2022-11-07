@@ -5,12 +5,14 @@ const path = require('path');
 const session = require('express-session');
 const nunjucks = require('nunjucks');
 const dotenv = require('dotenv');
-
+const { sequelize } = require('./models')
 dotenv.config();
 const pageRouter = require('./routes/page');
 
+sequelize.sync({force : false}).then(()=> {console.log('db ok')}).catch((error)=>{console.error(error)})
+
 const app = express();
-app.set('port', process.env.PORT || 8001);
+app.set('port', process.env.PORT || 8000);
 app.set('view engine', 'html');
 nunjucks.configure('views', {
   express: app,
