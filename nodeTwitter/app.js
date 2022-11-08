@@ -7,11 +7,18 @@ const nunjucks = require('nunjucks');
 const dotenv = require('dotenv');
 const { sequelize } = require('./models')
 dotenv.config();
+
+//passport
+const passport = require('passport')
+const passportConfig = require('./passport')
+
+
 const pageRouter = require('./routes/page');
 
 sequelize.sync({force : false}).then(()=> {console.log('db ok')}).catch((error)=>{console.error(error)})
 
 const app = express();
+passportConfig();
 app.set('port', process.env.PORT || 8000);
 app.set('view engine', 'html');
 nunjucks.configure('views', {
@@ -33,6 +40,10 @@ app.use(session({
     secure: false,
   },
 }));
+
+// passport
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use('/', pageRouter);
 
