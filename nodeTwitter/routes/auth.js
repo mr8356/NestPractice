@@ -59,8 +59,8 @@ router.get('/logout',isLoggedIn ,(req, res)=>{
 
 router.get('/kakao', passport.authenticate('kakao'));
 
-router.get('/kakao/callback', passport.authenticate('kakao', {failureRedirect : '/'}, (req,res) =>{
+router.get('/kakao/callback', passport.authenticate('kakao', {failureRedirect : '/'}), (req,res) =>{
     res.redirect('/')
-}));
+});
 // 이 모듈을 router로 익스포트한다.
 module.exports = router;
