@@ -1,21 +1,19 @@
 const passport = require('passport')
 const local  = require('./localStrategy')
+const kakao = require('./kakaoStrategy')
 const User = require('../models/user')
 
-exports.module = () =>{
+module.exports = () => {
     passport.serializeUser((user, done)=>{
         done(null, user.id);
     })
 
     passport.deserializeUser((id, done)=>{
-        User.findOne({
-            where : {
-                id : id
-            }
-        })
-        .then(user => done(null, user))
+        User.findOne({where : {id}})
+        .then(user => {done(null, user); console.log('yes!')})
         .catch(err => done(err))
     })
     // localStrategy 미들웨어 적용
     local();
+    kakao();
 }

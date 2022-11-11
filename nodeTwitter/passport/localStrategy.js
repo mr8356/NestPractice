@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 
 const User = require('../models/user')
 
-exports.exports = () => {
+module.exports = () => {
     // localStrategy 미들웨어를 passport 과정에서 자동사용
     // 두 인자 옵션, vertify 미들웨어
     passport.use(new localStrategy({
@@ -13,17 +13,22 @@ exports.exports = () => {
         passwordField : 'password'
     }, async (email, password, done) => {
         // vertify되면 done 하는 미들웨어
-        const logUser = await User.findOne({where : {email : email}})
-        if (logUser) {
-            const result = await bcrypt.compare(passport, logUser.password)
-            if (result) {
-                done(null, logUser);
+        try {
+            const logUser = await User.findOne({where : {email}})
+            if (logUser) {
+                const result = await bcrypt.compare(password, logUser.password)
+                if (result) {
+                    done(null, logUser);
+                } else {
+                    done(null, false, {message : '비밀번호가 일치하지 않습니다.'})
+                }
             } else {
-                done(null, false, {message : '비밀번호가 일치하지 않습니다.'})
+                // 사용자가 없습니다.
+                done(null, false, { message : '가입되지 않은 회원입니다.' })
             }
-        } else {
-            // 사용자가 없습니다.
-            done(null, false, { message : '가입되지 않은 회원입니다.' })
+        } catch (error) {
+            console.error(error);
+            done(error)
         }
     }))
 }
