@@ -8,11 +8,22 @@ module.exports = () => {
         done(null, user.id);
     })
 
-    passport.deserializeUser((id, done)=>{
-        User.findOne({where : {id}})
-        .then(user => {done(null, user); console.log('yes!')})
-        .catch(err => done(err))
-    })
+    passport.deserializeUser((id, done) => {
+        User.findOne({
+          where: { id : id },
+          include: [{
+            model: User,
+            attributes: ['id', 'nick'],
+            as: 'Followers',
+          }, {
+            model: User,
+            attributes: ['id', 'nick'],
+            as: 'Followings',
+          }],
+        })
+          .then(user => done(null, user))
+          .catch(err => done(err));
+    });
     // localStrategy 미들웨어 적용
     local();
     kakao();

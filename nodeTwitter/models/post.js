@@ -11,7 +11,7 @@ module.exports = class Post extends Sequelize.Model{
             img : {
                 allowNull : true,
                 type : Sequelize.STRING(200),
-            }
+            },
         },{
             sequelize,
             timestamps : true,
@@ -24,7 +24,7 @@ module.exports = class Post extends Sequelize.Model{
         })
     }
     static associate(db) {
-        db.Post.belongsTo(db.User);
+        db.Post.belongsTo(db.User, {foreignKey : 'UserId'});
         db.Post.belongsToMany(db.Hashtag, {through : 'PostHashtag'});
     }
 };
