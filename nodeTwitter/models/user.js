@@ -47,6 +47,6 @@ module.exports = class User extends Sequelize.Model{
             as : 'Followings',
             foreignKey : 'FollowerId',
             through : 'Follow',
-        })
+        });
     }
 };

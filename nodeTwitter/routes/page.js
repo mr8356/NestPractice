@@ -3,6 +3,9 @@ const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
 const Post = require('../models/post');
 const User = require('../models/user');
 const Hashtag = require('../models/hashtag');
+const bcrypt = require('bcrypt')
+const { compare } = require('bcrypt');
+const { where } = require('sequelize');
 const router = express.Router();
 
 router.use((req, res, next) => {
@@ -17,6 +20,33 @@ router.use((req, res, next) => {
 router.get('/profile', isLoggedIn , (req, res) => {
   res.render('profile', { title: '내 정보 - NodeBird' });
 });
+
+router.get('/update', isLoggedIn, (req, res)=>{
+  res.render('update', {nick : req.user.nick});
+});
+
+router.post('/update', isLoggedIn, async (req, res, next)=>{
+  try {
+    const {nick, password, newpassword, newpassword2} = req.body;
+    console.log(nick, password, newpassword, newpassword2)
+    const logUser = await User.findOne({where : {id : req.user.id}})
+    const result = await bcrypt.compare(password, logUser.password)
+    if (result) {
+      if(newpassword === newpassword2){
+        const hash = await bcrypt.hash(newpassword , 12)
+        await logUser.update({password : hash}, {nick})
+        res.send('success');
+      } else {
+        res.status(400).send('비밀번호 확인이 일치하지 않습니다.')
+      }
+    } else {
+        res.status(400).send('비밀번호가 일치하지 않습니다.')
+    }
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
+})
 
 router.get('/join', isNotLoggedIn , (req, res) => {
   res.render('join', { title: '회원가입 - NodeBird' });

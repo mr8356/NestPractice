@@ -32,6 +32,10 @@
             <div class="twit-author">{{twit.User.nick}}</div>
             {% if not followerIdList.includes(twit.User.id) and twit.User.id !== user.id %}
               <button class="twit-follow">팔로우하기</button>
+            {% elif twit.User.id !== user.id%}
+              <button class="twit-unfollow">팔로우끊기</button>
+            {% elif twit.User.id == user.id %}
+              <button class="twit-delete" >삭제하기</button>
             {% endif %}
             <div class="twit-content">{{twit.content}}</div>
             {% if twit.img %}
@@ -78,6 +82,39 @@
             }
           }
         }
+      });
+    });
+    document.querySelectorAll('.twit-unfollow').forEach(function(tag) {
+      tag.addEventListener('click', function() {
+        const myId = document.querySelector('#my-id');
+        if (myId) {
+          const userId = tag.parentNode.querySelector('.twit-user-id').value;
+          if (userId !== myId.value) {
+            if (confirm('언팔로우 하시겠습니까?')) {
+              axios.post(`/user/${userId}/unfollow`)
+                .then(() => {
+                  location.reload();
+                })
+                .catch((err) => {
+                  console.error(err);
+                });
+            }
+          }
+        }
+      });
+    });
+    document.querySelectorAll('.twit-delete').forEach(function(tag) {
+      tag.addEventListener('click', function() {
+          const PostId = tag.parentNode.querySelector('.twit-id').value;
+            if (confirm('계시글을 삭제 하시겠습니까?')) {
+              axios.delete(`/post/${PostId}`)
+                .then(() => {
+                  location.reload();
+                })
+                .catch((err) => {
+                  console.error(err);
+                });
+            }
       });
     });
   </script>

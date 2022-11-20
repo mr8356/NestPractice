@@ -59,4 +59,14 @@ router.post('/', isLoggedIn, upload2.none(), async(req, res,next) => {
     }
 })
 
+router.delete('/:id', async (req,res, next)=>{
+    try {
+        await Post.destroy({where : {id : req.params.id}})
+        res.status(200).send('success');
+    } catch (error) {
+        console.error(error);
+        next(error)
+    }
+})
+
 module.exports = router;
