@@ -1,0 +1,23 @@
+{
+  "development": {
+    "username": "dbmasteruser",
+    "password": "dong0305",
+    "database": "nodeTwitter",
+    "host": "ls-f7c53c1f43157d2809664bcbaadd8842af4f5151.cjwsmct3ucx3.ap-northeast-2.rds.amazonaws.com",
+    "dialect": "mysql"
+  },
+  "test": {
+    "username": "dbmasteruser",
+    "password": "dong0305",
+    "database": "nodeTwitter",
+    "host": "ls-f7c53c1f43157d2809664bcbaadd8842af4f5151.cjwsmct3ucx3.ap-northeast-2.rds.amazonaws.com",
+    "dialect": "mysql"
+  },
+  "production": {
+    "username": "dbmasteruser",
+    "password": "dong0305",
+    "database": "nodeTwitter",
+    "host": "ls-f7c53c1f43157d2809664bcbaadd8842af4f5151.cjwsmct3ucx3.ap-northeast-2.rds.amazonaws.com",
+    "dialect": "mysql"
+  }
+}
