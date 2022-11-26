@@ -2,17 +2,20 @@ const express = require('express')
 const path = require('path')
 const cookieParser = require('cookie-parser')
 const passport = require('passport')
+const passportConfig = require('./passport')
 const morgan = require('morgan')
 const session = require('express-session')
 const nunjucks = require('nunjucks')
 const dotenv = require('dotenv')
 const { sequelize } = require('./models') //db
 const { env } = require('process')
-dotenv.config();
-
 const app = express();
+dotenv.config();
+passportConfig()
+app.use(express.static(path.join(__dirname,'public')))
+app.use(express.static(path.join(__dirname,'views')))
 app.set('port', process.env.PORT || 8002)
-app.set('view engin', 'html');
+app.set('view engine', 'html');
 nunjucks.configure('views', {
     express : app,
     watch : true,
@@ -24,8 +27,6 @@ sequelize.sync({force : false}).then(()=>{
 })
 
 app.use(morgan('dev'))
-app.use(express.static(path.join(__dirname,'public')))
-app.use(express.static(path.join(__dirname,'views')))
 app.use(express.urlencoded({ extended : false }))
 app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(session({
@@ -41,7 +42,12 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // 여기 라우터들
-app.use()
+const indexRouter = require('./routes')
+const authRouter = require('./routes/auth')
+const v1Router = require('./routes/v1')
+app.use('/auth',authRouter);
+app.use('/v1', v1Router)
+app.use(indexRouter);
 
 
 // 어떤 라우터에도 해당 X
@@ -52,7 +58,7 @@ app.use((req,res,next)=>{
 })
 // 에러를 받음
 app.use((err, req, res, next)=>{
-    req.locals.message = err.message;
+    // req.locals.message = err.message;
     if(process.env.NODE_ENV != 'production'){
         res.locals.error = err
     }

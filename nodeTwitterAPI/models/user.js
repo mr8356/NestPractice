@@ -48,6 +48,6 @@ module.exports = class User extends Sequelize.Model{
             foreignKey : 'FollowerId',
             through : 'Follow',
         });
-        db.User.hasMany(db.Domain);
+        db.User.hasMany(db.Domain, {foreignKey : 'UserId', sourceKey : 'id'});
     }
 };
